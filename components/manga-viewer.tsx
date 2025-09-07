@@ -30,7 +30,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { RotateCw, Trash2, Pencil, Loader2 } from "lucide-react";
+import {
+  RotateCw,
+  Trash2,
+  Pencil,
+  Loader2,
+  Download,
+  ExternalLink,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
@@ -115,6 +122,20 @@ export function MangaViewer({
     } finally {
       setIsRegenerating(false);
     }
+  };
+
+  const handleDownload = () => {
+    if (!openPage) return;
+
+    // Create a temporary anchor element
+    const link = document.createElement("a");
+    link.href = openPage.imageUrl;
+    link.download = `nanomanga-page-${openPage.pageNumber}.png`;
+
+    // Programmatically click the link to trigger the download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -248,12 +269,27 @@ export function MangaViewer({
             </div>
             <DialogFooter className="flex-col md:flex-row gap-2">
               <Button
+                variant="secondary"
+                onClick={() => window.open(openPage?.imageUrl, "_blank")}
+                disabled={isRegenerating}
+              >
+                <ExternalLink className="mr-2 h-4 w-4" /> View Full
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleDownload}
+                disabled={isRegenerating}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download
+              </Button>
+              <div className="flex-grow" /> {/* Spacer */}
+              <Button
                 variant="outline"
                 onClick={() => setIsEditing(!isEditing)}
                 disabled={isRegenerating}
               >
                 <Pencil className="mr-2 h-4 w-4" />{" "}
-                {isEditing ? "Cancel" : "Edit Prompt"}
+                {isEditing ? "Cancel" : "Edit"}
               </Button>
               {isEditing && (
                 <Button onClick={handleRegenerate} disabled={isRegenerating}>

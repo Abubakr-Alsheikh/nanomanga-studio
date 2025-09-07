@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   Card,
   CardContent,
@@ -41,7 +41,7 @@ interface StoryFoundationProps {
   artStyle: string;
   setArtStyle: (a: string) => void;
   storyPlan: IStoryPlan | null;
-  setStoryPlan: (plan: IStoryPlan | null) => void;
+  setStoryPlan: Dispatch<SetStateAction<IStoryPlan | null>>;
 }
 
 const initialGenres = [
