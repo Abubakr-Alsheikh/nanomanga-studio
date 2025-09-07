@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { RotateCw } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Home() {
   const [genre, setGenre] = useState("Sci-Fi");
@@ -64,42 +65,35 @@ export default function Home() {
     setPages([]);
   };
 
+  // --- NEW HANDLER: Remove the last page ---
+  const handleRemoveLastPage = () => {
+    setPages((prev) => prev.slice(0, -1));
+    toast.success("Last page removed.");
+  };
+
+  // --- NEW HANDLER: Update a page after editing ---
+  const handlePageUpdated = (
+    pageId: string,
+    updates: { imageUrl: string; prompt: string }
+  ) => {
+    setPages((prev) =>
+      prev.map((page) => (page.id === pageId ? { ...page, ...updates } : page))
+    );
+    toast.success(
+      `Page ${pages.find((p) => p.id === pageId)?.pageNumber} updated!`
+    );
+  };
+
   // Modify the main prompt sent to the image generator
   const finalArtStylePrompt = storyPlan ? storyPlan.detailedArtStyle : artStyle;
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-center sm:text-left">
-          <h1 className="text-4xl font-bold tracking-tight">
-            NanoManga Studio
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Your AI co-creator for crafting unique manga stories.
-          </p>
-        </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline">
-              <RotateCw className="mr-2 h-4 w-4" /> Start Over
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete all
-                current progress.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleStartOver}>
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      <header className="text-center">
+        <h1 className="text-4xl font-bold tracking-tight">NanoManga Studio</h1>
+        <p className="text-muted-foreground mt-2">
+          Your AI co-creator for crafting unique manga stories.
+        </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -133,6 +127,7 @@ export default function Home() {
                 )}
                 storySummary={storySummary} // Pass legacy summary for non-plan inspiration
               />
+              <hr className="border-dashed" />
               <AssetList title="Characters" assets={characters} />
               <AssetList title="Environments" assets={environments} />
             </CardContent>
@@ -162,7 +157,13 @@ export default function Home() {
               />
             </CardContent>
           </Card>
-          <MangaViewer pages={pages} />
+          <MangaViewer
+            pages={pages}
+            // --- Pass all new handlers down ---
+            onStartOver={handleStartOver}
+            onRemoveLastPage={handleRemoveLastPage}
+            onPageUpdated={handlePageUpdated}
+          />
         </div>
       </div>
     </div>

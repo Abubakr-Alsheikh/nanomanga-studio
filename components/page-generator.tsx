@@ -212,8 +212,8 @@ export function PageGenerator({
         <h4 className="font-semibold">Select Assets to Include</h4>
         {!hasAssets ? (
           <p className="text-sm text-muted-foreground p-4 text-center bg-muted rounded-md">
-            Go to "2. Create Assets" to generate characters and environments
-            first.
+            Go to &quot;2. Create Assets&quot; to generate characters and
+            environments first.
           </p>
         ) : (
           <>

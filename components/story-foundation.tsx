@@ -196,12 +196,12 @@ export function StoryFoundation({
       <CardContent className="space-y-6">
         {/* --- CORRECTED CONDITIONAL RENDERING --- */}
         {!storyPlan && !isPlanning && (
-          <div className="space-y-6">
+          <div className="space-y-6 mb-0">
             <div className="space-y-4 p-4 border rounded-lg">
               <div className="space-y-1.5">
                 <Label>Genre</Label>
                 <Select value={genre} onValueChange={setGenre}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Genre" />
                   </SelectTrigger>
                   <SelectContent>
@@ -216,12 +216,30 @@ export function StoryFoundation({
               <div className="space-y-1.5">
                 <Label>Color Style</Label>
                 <Select value={colorStyle} onValueChange={setColorStyle}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Color Style" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Black and White">B&W</SelectItem>
                     <SelectItem value="Colorized">Color</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Number of Pages</Label>
+                <Select
+                  value={String(numPages)}
+                  onValueChange={(v) => setNumPages(Number(v))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[3, 4, 6, 8, 10, 12, 15].map((p) => (
+                      <SelectItem key={p} value={String(p)}>
+                        {p} Pages
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -248,21 +266,6 @@ export function StoryFoundation({
             </div>
 
             <div className="flex items-center gap-4">
-              <Select
-                value={String(numPages)}
-                onValueChange={(v) => setNumPages(Number(v))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[3, 4, 6, 8, 10, 12, 15].map((p) => (
-                    <SelectItem key={p} value={String(p)}>
-                      {p} Pages
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Button
                 onClick={handleMakePlan}
                 disabled={!storySummary}
@@ -275,7 +278,7 @@ export function StoryFoundation({
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           {isPlanning && <PlanSkeleton />}
           {storyPlan && (
             <div className="space-y-4 p-4 bg-muted rounded-lg border">
