@@ -1,14 +1,30 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { StoryFoundation } from "@/components/story-foundation"; // New component
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { AssetCreator } from "@/components/asset-creator";
 import { AssetList } from "@/components/asset-list";
 import { PageGenerator } from "@/components/page-generator";
 import { MangaViewer } from "@/components/manga-viewer";
 import { IAsset, IMangaPage, IStoryPlan } from "@/types";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { RotateCw } from "lucide-react";
 
@@ -22,17 +38,19 @@ export default function Home() {
   const [characters, setCharacters] = useState<IAsset[]>([]);
   const [environments, setEnvironments] = useState<IAsset[]>([]);
   const [pages, setPages] = useState<IMangaPage[]>([]);
-  
+
   const handleAssetCreated = (newAsset: IAsset) => {
-    if (newAsset.type === 'character') {
-      setCharacters(prev => [...prev, newAsset]);
+    if (newAsset.type === "character") {
+      setCharacters((prev) => [...prev, newAsset]);
     } else {
-      setEnvironments(prev => [...prev, newAsset]);
+      setEnvironments((prev) => [...prev, newAsset]);
     }
   };
 
   const handlePageCreated = (newPage: IMangaPage) => {
-    setPages(prev => [...prev, newPage].sort((a, b) => a.pageNumber - b.pageNumber));
+    setPages((prev) =>
+      [...prev, newPage].sort((a, b) => a.pageNumber - b.pageNumber)
+    );
   };
 
   const handleStartOver = () => {
@@ -45,7 +63,7 @@ export default function Home() {
     setEnvironments([]);
     setPages([]);
   };
-  
+
   // Modify the main prompt sent to the image generator
   const finalArtStylePrompt = storyPlan ? storyPlan.detailedArtStyle : artStyle;
 
@@ -53,23 +71,32 @@ export default function Home() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-center sm:text-left">
-          <h1 className="text-4xl font-bold tracking-tight">NanoManga Studio</h1>
-          <p className="text-muted-foreground mt-2">Your AI co-creator for crafting unique manga stories.</p>
+          <h1 className="text-4xl font-bold tracking-tight">
+            NanoManga Studio
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Your AI co-creator for crafting unique manga stories.
+          </p>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline"><RotateCw className="mr-2 h-4 w-4" /> Start Over</Button>
+            <Button variant="outline">
+              <RotateCw className="mr-2 h-4 w-4" /> Start Over
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete all current progress.
+                This action cannot be undone. This will permanently delete all
+                current progress.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleStartOver}>Continue</AlertDialogAction>
+              <AlertDialogAction onClick={handleStartOver}>
+                Continue
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -78,20 +105,32 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-1 flex flex-col gap-8">
           <StoryFoundation
-            genre={genre} setGenre={setGenre}
-            colorStyle={colorStyle} setColorStyle={setColorStyle}
-            storySummary={storySummary} setStorySummary={setStorySummary}
-            artStyle={artStyle} setArtStyle={setArtStyle}
-            storyPlan={storyPlan} setStoryPlan={setStoryPlan}
+            genre={genre}
+            setGenre={setGenre}
+            colorStyle={colorStyle}
+            setColorStyle={setColorStyle}
+            storySummary={storySummary}
+            setStorySummary={setStorySummary}
+            artStyle={artStyle}
+            setArtStyle={setArtStyle}
+            storyPlan={storyPlan}
+            setStoryPlan={setStoryPlan}
           />
           <Card>
-            <CardHeader><CardTitle>2. Create Assets</CardTitle><CardDescription>Generate the characters and environments from your plan.</CardDescription></CardHeader>
+            <CardHeader>
+              <CardTitle>2. Create Assets</CardTitle>
+              <CardDescription>
+                Generate the characters and environments from your plan.
+              </CardDescription>
+            </CardHeader>
             <CardContent className="space-y-6">
               <AssetCreator
                 artStyle={finalArtStylePrompt}
                 onAssetCreated={handleAssetCreated}
                 storyPlan={storyPlan}
-                existingAssetNames={[...characters, ...environments].map(a => a.name)}
+                existingAssetNames={[...characters, ...environments].map(
+                  (a) => a.name
+                )}
                 storySummary={storySummary} // Pass legacy summary for non-plan inspiration
               />
               <AssetList title="Characters" assets={characters} />
@@ -102,10 +141,17 @@ export default function Home() {
 
         <div className="lg:col-span-2 flex flex-col gap-8">
           <Card>
-            <CardHeader><CardTitle>3. Generate Pages</CardTitle><CardDescription>Generate pages panel by panel using your story plan.</CardDescription></CardHeader>
+            <CardHeader>
+              <CardTitle>3. Generate Pages</CardTitle>
+              <CardDescription>
+                Generate pages panel by panel using your story plan.
+              </CardDescription>
+            </CardHeader>
             <CardContent>
               <PageGenerator
-                storySummary={storyPlan ? storyPlan.detailedStorySummary : storySummary}
+                storySummary={
+                  storyPlan ? storyPlan.detailedStorySummary : storySummary
+                }
                 artStyle={finalArtStylePrompt}
                 characters={characters}
                 environments={environments}

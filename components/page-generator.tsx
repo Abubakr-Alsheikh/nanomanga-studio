@@ -47,23 +47,30 @@ export function PageGenerator({
     setIsInspiring(true);
     toast.info("Generating a suggestion for the next page...");
     try {
-      const response = await fetch("/api/inspire/page", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/inspire/page', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // --- THE DEFINITIVE FIX IS HERE ---
+        // We now send the entire storyPlan object, which is what the API expects.
+        // We also send the prompts from the pages that have already been generated.
         body: JSON.stringify({
-          storySummary,
-          characterNames: characters.map((c) => c.name),
-          environmentNames: environments.map((e) => e.name),
-          storyPlanPages: storyPlan.pages, // Send the page breakdown
-          previousPagePrompts: pages.map((p) => p.prompt),
+          storyPlan: storyPlan,
+          previousPagePrompts: pages.map(p => p.prompt),
         }),
+        // ------------------------------------
       });
-      if (!response.ok) throw new Error("Failed to get suggestion.");
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get suggestion.");
+      }
+      
       const { pagePrompt: newPrompt } = await response.json();
       setPagePrompt(newPrompt);
       toast.success("Page suggestion generated!");
     } catch (error) {
-      toast.error("Could not generate a suggestion.");
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Could not generate a suggestion.");
     } finally {
       setIsInspiring(false);
     }
