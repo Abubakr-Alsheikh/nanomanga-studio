@@ -47,15 +47,15 @@ export function PageGenerator({
     setIsInspiring(true);
     toast.info("Generating a suggestion for the next page...");
     try {
-      const response = await fetch('/api/inspire/page', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/inspire/page", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         // --- THE DEFINITIVE FIX IS HERE ---
         // We now send the entire storyPlan object, which is what the API expects.
         // We also send the prompts from the pages that have already been generated.
         body: JSON.stringify({
           storyPlan: storyPlan,
-          previousPagePrompts: pages.map(p => p.prompt),
+          previousPagePrompts: pages.map((p) => p.prompt),
         }),
         // ------------------------------------
       });
@@ -64,13 +64,17 @@ export function PageGenerator({
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to get suggestion.");
       }
-      
+
       const { pagePrompt: newPrompt } = await response.json();
       setPagePrompt(newPrompt);
       toast.success("Page suggestion generated!");
     } catch (error) {
       console.error(error);
-      toast.error(error instanceof Error ? error.message : "Could not generate a suggestion.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not generate a suggestion."
+      );
     } finally {
       setIsInspiring(false);
     }
@@ -93,25 +97,23 @@ export function PageGenerator({
       toast.error("Please provide a prompt for the page.");
       return;
     }
-    if (!storySummary.trim() || !artStyle.trim()) {
-      toast.warning(
-        "For best results, please define your story and art style first."
-      );
-    }
 
     setIsLoading(true);
+    const currentPageNumber = pages.length + 1;
     toast.info(
       `Generating page ${currentPageNumber}... This may take a moment.`
     );
 
     try {
+      // --- THE KEY CHANGE IS HERE ---
+
       // 1. Find the full asset objects for the selected IDs
       const allAssets = [...characters, ...environments];
       const selectedAssets = allAssets.filter((asset) =>
         selectedAssetIds.has(asset.id)
       );
 
-      // 2. Construct the detailed text prompt
+      // 2. Construct the detailed text prompt with clear instructions
       const characterNames =
         selectedAssets
           .filter((a) => a.type === "character")
@@ -128,23 +130,29 @@ export function PageGenerator({
         **Story Summary:** ${storySummary}
         **Art Style:** ${artStyle}
         **Page Number:** ${currentPageNumber}
-        **Page Description:** ${pagePrompt}
+        **Page Description (with panels):** ${pagePrompt}
         
-        **Assets to include:**
-        - Characters: ${characterNames}
-        - Environments: ${environmentNames}
+        **IMPORTANT INSTRUCTIONS FOR IMAGE REFERENCES:**
+        - **Previous Pages Context:** The FIRST ${pages.length} image(s) provided are the previous pages of the manga, in order. Use them as a strong reference for story continuity, character appearance, clothing, and any persistent effects (e.g., damage, weather).
+        - **Asset References:** The REMAINING ${selectedAssets.length} image(s) are specific characters and environments to feature on THIS page. Use them as a primary reference for drawing these assets.
 
-        **Instructions:** Create a single manga page based on the description. Use the provided images as a strong visual reference for the characters and environments to maintain consistency.
+        Create a single, cohesive manga page that follows the Page Description and respects all the visual context provided.
       `.trim();
 
-      // 3. Extract base64 data from selected asset image URLs
-      const baseImages = selectedAssets.map((asset) => {
-        // The URL is in the format "data:image/png;base64,ENCODED_DATA"
-        // We need to extract just the ENCODED_DATA part.
-        return asset.imageUrl.split(",")[1];
-      });
+      // 3. Extract base64 data from PREVIOUS PAGES
+      const pageImages = pages.map((page) => page.imageUrl.split(",")[1]);
 
-      // 4. Call the API
+      // 4. Extract base64 data from SELECTED ASSETS
+      const assetImages = selectedAssets.map(
+        (asset) => asset.imageUrl.split(",")[1]
+      );
+
+      // 5. Combine all images into a single array, with previous pages FIRST.
+      const baseImages = [...assetImages, ...pageImages];
+
+      // --- END OF KEY CHANGE ---
+
+      // 6. Call the API with the combined data
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -166,8 +174,8 @@ export function PageGenerator({
 
       onPageCreated(newPage);
       toast.success(`Page ${currentPageNumber} generated successfully!`);
-      setPagePrompt(""); // Clear prompt for the next page
-      setSelectedAssetIds(new Set()); // Clear selections
+      setPagePrompt("");
+      setSelectedAssetIds(new Set());
     } catch (error) {
       console.error(error);
       toast.error(
