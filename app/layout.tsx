@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner"; // Import the Toaster
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         )}
       >
         <main className="container mx-auto py-8">{children}</main>
+        <Toaster /> {/* Add Toaster here */}
       </body>
     </html>
   );
