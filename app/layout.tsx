@@ -25,7 +25,7 @@ export default function RootLayout({
         )}
       >
         <main className="container mx-auto py-8">{children}</main>
-        <Toaster /> {/* Add Toaster here */}
+        <Toaster richColors /> {/* Add Toaster here */}
       </body>
     </html>
   );

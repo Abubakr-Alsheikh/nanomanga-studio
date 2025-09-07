@@ -3,25 +3,29 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StoryInput } from "@/components/story-input";
-import { AssetCreator } from "@/components/asset-creator"; // Import
-import { AssetList } from "@/components/asset-list"; // Import
-import { IAsset } from "@/types"; // Import our type
+import { AssetCreator } from "@/components/asset-creator";
+import { AssetList } from "@/components/asset-list";
+import { PageGenerator } from "@/components/page-generator"; // Import
+import { MangaViewer } from "@/components/manga-viewer"; // Import
+import { IAsset, IMangaPage } from "@/types"; // Import IMangaPage
 
 export default function Home() {
   const [storySummary, setStorySummary] = useState("");
   const [artStyle, setArtStyle] = useState("");
-  
-  // State for our generated assets
   const [characters, setCharacters] = useState<IAsset[]>([]);
   const [environments, setEnvironments] = useState<IAsset[]>([]);
+  const [pages, setPages] = useState<IMangaPage[]>([]); // State for pages
 
-  // Callback function to add a new asset to the correct list
   const handleAssetCreated = (newAsset: IAsset) => {
     if (newAsset.type === 'character') {
       setCharacters(prev => [...prev, newAsset]);
     } else {
       setEnvironments(prev => [...prev, newAsset]);
     }
+  };
+
+  const handlePageCreated = (newPage: IMangaPage) => {
+    setPages(prev => [...prev, newPage].sort((a, b) => a.pageNumber - b.pageNumber));
   };
 
   return (
@@ -48,36 +52,35 @@ export default function Home() {
               <CardDescription>Generate the characters and environments for your story.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* === Integrate AssetCreator === */}
               <AssetCreator artStyle={artStyle} onAssetCreated={handleAssetCreated} />
               <hr className="border-dashed" />
-              {/* === Integrate AssetLists === */}
               <AssetList title="Characters" assets={characters} />
               <AssetList title="Environments" assets={environments} />
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Column: Generation & Viewer (remains the same for now) */}
+        {/* Right Column: Generation & Viewer */}
         <div className="lg:col-span-2 flex flex-col gap-8">
-           <Card>
-            <CardHeader>
-              <CardTitle>3. Generate Pages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Write a prompt for a page, select assets, and generate.</p>
-            </CardContent>
-          </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Your Manga</CardTitle>
+              <CardTitle>3. Generate Pages</CardTitle>
+              <CardDescription>Write a prompt for a page, select assets to reference, and generate.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center h-64 border-2 border-dashed rounded-lg">
-                 <p className="text-sm text-muted-foreground">Your generated pages will appear here.</p>
-              </div>
+              {/* === Integrate PageGenerator === */}
+              <PageGenerator
+                storySummary={storySummary}
+                artStyle={artStyle}
+                characters={characters}
+                environments={environments}
+                currentPageNumber={pages.length + 1}
+                onPageCreated={handlePageCreated}
+              />
             </CardContent>
           </Card>
+          {/* === Integrate MangaViewer === */}
+          <MangaViewer pages={pages} />
         </div>
       </div>
     </div>
