@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -6,45 +6,72 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { IAsset } from "@/types";
+import { IAsset, IStoryPlan } from "@/types";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { InspireButton } from "./inspire-button"; // Import our new component
+import { InspireButton } from "./inspire-button";
 
 interface AssetCreatorProps {
   artStyle: string;
-  storySummary: string; // Add storySummary
-  existingAssetNames: string[]; // Add existing names
+  storySummary: string;
+  existingAssetNames: string[];
   onAssetCreated: (asset: IAsset) => void;
+  storyPlan: IStoryPlan | null;
 }
 
-export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAssetCreated }: AssetCreatorProps) {
-  const [assetType, setAssetType] = useState<"character" | "environment">("character");
+export function AssetCreator({
+  artStyle,
+  storySummary,
+  existingAssetNames,
+  onAssetCreated,
+  storyPlan,
+}: AssetCreatorProps) {
+  const [assetType, setAssetType] = useState<"character" | "environment">(
+    "character"
+  );
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isInspiring, setIsInspiring] = useState(false);
 
   const handleInspire = async () => {
-    if (!storySummary) {
-      toast.error("Please define a story summary first for better suggestions.");
+    if (!storyPlan) {
+      toast.error("Please generate a story plan first for smart suggestions.");
       return;
     }
+
+    // Find the next asset from the plan that hasn't been created yet
+    const plannedAssets =
+      assetType === "character" ? storyPlan.characters : storyPlan.environments;
+    const nextAssetToCreate = plannedAssets.find(
+      (pAsset) => !existingAssetNames.includes(pAsset.name)
+    );
+
+    if (!nextAssetToCreate) {
+      toast.success(`All planned ${assetType}s have been created!`);
+      return;
+    }
+
     setIsInspiring(true);
-    toast.info(`Getting an idea for a new ${assetType}...`);
+    toast.info(`Generating a prompt for ${nextAssetToCreate.name}...`);
     try {
-      const response = await fetch('/api/inspire/asset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assetType, storySummary, existingAssetNames }),
+      const response = await fetch("/api/inspire/asset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assetType,
+          name: nextAssetToCreate.name,
+          description: nextAssetToCreate.description,
+        }),
       });
       if (!response.ok) throw new Error("Failed to get suggestion.");
-      const { name: newName, prompt: newPrompt } = await response.json();
-      setName(newName);
+
+      const { prompt: newPrompt } = await response.json();
+      setName(nextAssetToCreate.name); // Pre-fill the name from the plan!
       setPrompt(newPrompt);
-      toast.success("New idea generated!");
+      toast.success(`Suggestion for ${nextAssetToCreate.name} generated!`);
     } catch (error) {
-      toast.error("Could not generate an idea.");
+      toast.error("Could not generate a suggestion.");
     } finally {
       setIsInspiring(false);
     }
@@ -60,12 +87,14 @@ export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAss
     toast.info(`Generating ${assetType}: ${name}...`);
 
     // **Crucial Step**: Combine the specific prompt with the overall art style
-    const fullPrompt = `A ${assetType} named '${name}'. Description: ${prompt}. Art Style: ${artStyle || 'manga style'}`;
+    const fullPrompt = `A ${assetType} named '${name}'. Description: ${prompt}. Art Style: ${
+      artStyle || "manga style"
+    }`;
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: fullPrompt }),
       });
 
@@ -82,29 +111,35 @@ export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAss
         prompt: fullPrompt,
         imageUrl: `data:image/png;base64,${imageData}`,
       };
-      
+
       onAssetCreated(newAsset);
       toast.success(`${assetType} '${name}' created successfully!`);
 
       // Reset form
       setName("");
       setPrompt("");
-
     } catch (error) {
       console.error(error);
-      toast.error(error instanceof Error ? error.message : "An unknown error occurred.");
+      toast.error(
+        error instanceof Error ? error.message : "An unknown error occurred."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const placeholderText = assetType === 'character' 
-    ? "e.g., A stoic samurai with a scar over his left eye, wearing traditional dark blue robes."
-    : "e.g., A bustling futuristic city market at night, neon signs reflecting in puddles on the street.";
+  const placeholderText =
+    assetType === "character"
+      ? "e.g., A stoic samurai with a scar over his left eye, wearing traditional dark blue robes."
+      : "e.g., A bustling futuristic city market at night, neon signs reflecting in puddles on the street.";
 
   return (
     <div className="space-y-4">
-      <Tabs value={assetType} onValueChange={(v) => setAssetType(v as any)} className="w-full">
+      <Tabs
+        value={assetType}
+        onValueChange={(v) => setAssetType(v as any)}
+        className="w-full"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="character">Character</TabsTrigger>
           <TabsTrigger value="environment">Environment</TabsTrigger>
@@ -116,9 +151,11 @@ export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAss
           <Label htmlFor="asset-name">Name</Label>
           <InspireButton onClick={handleInspire} isLoading={isInspiring} />
         </div>
-        <Input 
-          id="asset-name" 
-          placeholder={assetType === 'character' ? "e.g., Kenji" : "e.g., Neo-Kyoto Market"}
+        <Input
+          id="asset-name"
+          placeholder={
+            assetType === "character" ? "e.g., Kenji" : "e.g., Neo-Kyoto Market"
+          }
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={isLoading}
@@ -127,8 +164,8 @@ export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAss
 
       <div className="space-y-2">
         <Label htmlFor="asset-prompt">Prompt</Label>
-        <Textarea 
-          id="asset-prompt" 
+        <Textarea
+          id="asset-prompt"
           placeholder={placeholderText}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -136,7 +173,7 @@ export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAss
           className="min-h-28"
         />
       </div>
-      
+
       <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
         {isLoading ? (
           <>

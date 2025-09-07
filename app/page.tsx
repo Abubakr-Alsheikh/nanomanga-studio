@@ -28,7 +28,7 @@ import { AssetCreator } from "@/components/asset-creator";
 import { AssetList } from "@/components/asset-list";
 import { PageGenerator } from "@/components/page-generator";
 import { MangaViewer } from "@/components/manga-viewer";
-import { IAsset, IMangaPage } from "@/types";
+import { IAsset, IMangaPage, IStoryPlan } from "@/types"; // Import IStoryPlan
 import { RotateCw } from "lucide-react"; // Icon for the button
 import { StoryPlanner } from "@/components/story-planner";
 
@@ -38,6 +38,7 @@ export default function Home() {
   const [characters, setCharacters] = useState<IAsset[]>([]);
   const [environments, setEnvironments] = useState<IAsset[]>([]);
   const [pages, setPages] = useState<IMangaPage[]>([]);
+  const [storyPlan, setStoryPlan] = useState<IStoryPlan | null>(null); // Add state for the plan
 
   const handleAssetCreated = (newAsset: IAsset) => {
     if (newAsset.type === "character") {
@@ -60,6 +61,7 @@ export default function Home() {
     setCharacters([]);
     setEnvironments([]);
     setPages([]);
+    setStoryPlan(null);
   };
   // --------------------------------------
 
@@ -113,7 +115,11 @@ export default function Home() {
           />
 
           {/* === ADD THE NEW STORY PLANNER COMPONENT HERE === */}
-          <StoryPlanner storySummary={storySummary} />
+          <StoryPlanner
+            storySummary={storySummary}
+            storyPlan={storyPlan} // Pass state down
+            setStoryPlan={setStoryPlan} // Pass setter down
+          />
           {/* ================================================ */}
 
           <Card>
@@ -132,6 +138,7 @@ export default function Home() {
                 existingAssetNames={[...characters, ...environments].map(
                   (a) => a.name
                 )}
+                storyPlan={storyPlan} // Pass state down
               />
               <hr className="border-dashed" />
               <AssetList title="Characters" assets={characters} />
@@ -158,6 +165,7 @@ export default function Home() {
                 currentPageNumber={pages.length + 1}
                 onPageCreated={handlePageCreated}
                 pages={pages} // Pass pages for context
+                storyPlan={storyPlan} // Pass state down
               />
             </CardContent>
           </Card>
