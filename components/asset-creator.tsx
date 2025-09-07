@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,7 @@ interface AssetCreatorProps {
 }
 
 export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
-  const [assetType, setAssetType] = useState<"character" | "environment">(
-    "character"
-  );
+  const [assetType, setAssetType] = useState<"character" | "environment">("character");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,14 +31,12 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
     toast.info(`Generating ${assetType}: ${name}...`);
 
     // **Crucial Step**: Combine the specific prompt with the overall art style
-    const fullPrompt = `A ${assetType} named '${name}'. Description: ${prompt}. Art Style: ${
-      artStyle || "manga style"
-    }`;
+    const fullPrompt = `A ${assetType} named '${name}'. Description: ${prompt}. Art Style: ${artStyle || 'manga style'}`;
 
     try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: fullPrompt }),
       });
 
@@ -57,35 +53,29 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
         prompt: fullPrompt,
         imageUrl: `data:image/png;base64,${imageData}`,
       };
-
+      
       onAssetCreated(newAsset);
       toast.success(`${assetType} '${name}' created successfully!`);
 
       // Reset form
       setName("");
       setPrompt("");
+
     } catch (error) {
       console.error(error);
-      toast.error(
-        error instanceof Error ? error.message : "An unknown error occurred."
-      );
+      toast.error(error instanceof Error ? error.message : "An unknown error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const placeholderText =
-    assetType === "character"
-      ? "e.g., A stoic samurai with a scar over his left eye, wearing traditional dark blue robes."
-      : "e.g., A bustling futuristic city market at night, neon signs reflecting in puddles on the street.";
+  const placeholderText = assetType === 'character' 
+    ? "e.g., A stoic samurai with a scar over his left eye, wearing traditional dark blue robes."
+    : "e.g., A bustling futuristic city market at night, neon signs reflecting in puddles on the street.";
 
   return (
     <div className="space-y-4">
-      <Tabs
-        value={assetType}
-        onValueChange={(v) => setAssetType(v as any)}
-        className="w-full"
-      >
+      <Tabs value={assetType} onValueChange={(v) => setAssetType(v as any)} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="character">Character</TabsTrigger>
           <TabsTrigger value="environment">Environment</TabsTrigger>
@@ -94,11 +84,9 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
 
       <div className="space-y-2">
         <Label htmlFor="asset-name">Name</Label>
-        <Input
-          id="asset-name"
-          placeholder={
-            assetType === "character" ? "e.g., Kenji" : "e.g., Neo-Kyoto Market"
-          }
+        <Input 
+          id="asset-name" 
+          placeholder={assetType === 'character' ? "e.g., Kenji" : "e.g., Neo-Kyoto Market"}
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={isLoading}
@@ -107,8 +95,8 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
 
       <div className="space-y-2">
         <Label htmlFor="asset-prompt">Prompt</Label>
-        <Textarea
-          id="asset-prompt"
+        <Textarea 
+          id="asset-prompt" 
           placeholder={placeholderText}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -116,7 +104,7 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
           className="min-h-28"
         />
       </div>
-
+      
       <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
         {isLoading ? (
           <>

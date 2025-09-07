@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -118,6 +118,8 @@ export function PageGenerator({
     }
   };
 
+  const hasAssets = characters.length > 0 || environments.length > 0;
+
   return (
     <div className="space-y-6">
       <div>
@@ -132,10 +134,17 @@ export function PageGenerator({
         />
       </div>
       
+      {/* === Updated Asset Selection Area === */}
       <div className="space-y-4">
         <h4 className="font-semibold">Select Assets to Include</h4>
-        {characters.length > 0 && (
-          <div className="space-y-2">
+        {!hasAssets ? (
+          <p className="text-sm text-muted-foreground p-4 text-center bg-muted rounded-md">
+            Go to "2. Create Assets" to generate characters and environments first.
+          </p>
+        ) : (
+          <>
+            {characters.length > 0 && (
+              <div className="space-y-2">
             <Label>Characters</Label>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {characters.map(char => (
@@ -149,10 +158,10 @@ export function PageGenerator({
               ))}
             </div>
           </div>
-        )}
-        
-        {environments.length > 0 && (
-          <div className="space-y-2">
+            )}
+            
+            {environments.length > 0 && (
+              <div className="space-y-2">
             <Label>Environments</Label>
              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {environments.map(env => (
@@ -166,11 +175,14 @@ export function PageGenerator({
               ))}
             </div>
           </div>
+            )}
+          </>
         )}
       </div>
+      {/* ================================== */}
 
-      <Button onClick={handleGeneratePage} disabled={isLoading} size="lg" className="w-full">
-        {isLoading ? (
+      <Button onClick={handleGeneratePage} disabled={isLoading || !hasAssets} size="lg" className="w-full">
+         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Generating Page...
