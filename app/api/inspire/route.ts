@@ -1,4 +1,5 @@
 import { genAI } from "@/lib/gemini";
+import { extractJson } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 // We'll use the lightweight text model for this
@@ -22,8 +23,12 @@ export async function POST() {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
-    // We assume the model followed instructions and returned a JSON string.
-    const responseObject = JSON.parse(responseText);
+    const cleanedJson = extractJson(responseText);
+    if (!cleanedJson) {
+      throw new Error("AI did not return a valid JSON object.");
+    }
+
+    const responseObject = JSON.parse(cleanedJson);
 
     // Validate the response object to ensure it has the expected keys.
     if (!responseObject.storySummary || !responseObject.artStyle) {
