@@ -9,12 +9,14 @@ import { IAsset, IMangaPage } from "@/types";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { InspireButton } from "./inspire-button"; // Import
 
 interface PageGeneratorProps {
   storySummary: string;
   artStyle: string;
   characters: IAsset[];
   environments: IAsset[];
+  pages: IMangaPage[]; // Add pages for context
   currentPageNumber: number;
   onPageCreated: (page: IMangaPage) => void;
 }
@@ -24,12 +26,43 @@ export function PageGenerator({
   artStyle,
   characters,
   environments,
+  pages,
   currentPageNumber,
   onPageCreated,
 }: PageGeneratorProps) {
   const [pagePrompt, setPagePrompt] = useState("");
   const [selectedAssetIds, setSelectedAssetIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [isInspiring, setIsInspiring] = useState(false); // Add inspiring state
+
+  const handleInspire = async () => {
+     if (!storySummary) {
+      toast.error("Please define a story summary first for better suggestions.");
+      return;
+    }
+    setIsInspiring(true);
+    toast.info("Generating a suggestion for the next page...");
+    try {
+        const response = await fetch('/api/inspire/page', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                storySummary,
+                characterNames: characters.map(c => c.name),
+                environmentNames: environments.map(e => e.name),
+                previousPagePrompts: pages.map(p => p.prompt)
+            }),
+        });
+        if (!response.ok) throw new Error("Failed to get suggestion.");
+        const { pagePrompt: newPrompt } = await response.json();
+        setPagePrompt(newPrompt);
+        toast.success("Page suggestion generated!");
+    } catch (error) {
+        toast.error("Could not generate a suggestion.");
+    } finally {
+        setIsInspiring(false);
+    }
+  };
 
   const handleAssetSelection = (assetId: string) => {
     setSelectedAssetIds(prev => {
@@ -123,7 +156,10 @@ export function PageGenerator({
   return (
     <div className="space-y-6">
       <div>
-        <Label htmlFor="page-prompt" className="text-lg font-semibold">Page {currentPageNumber} Prompt</Label>
+        <div className="flex items-center justify-between">
+            <Label htmlFor="page-prompt" className="text-lg font-semibold">Page {currentPageNumber} Prompt</Label>
+            <InspireButton onClick={handleInspire} isLoading={isInspiring} />
+        </div>
         <Textarea
           id="page-prompt"
           placeholder="e.g., Kenji stands defiantly in the Neo-Kyoto Market, facing off against a shadowy figure. Rain pours down."

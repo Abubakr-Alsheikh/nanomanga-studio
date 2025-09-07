@@ -9,17 +9,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { IAsset } from "@/types";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { InspireButton } from "./inspire-button"; // Import our new component
 
 interface AssetCreatorProps {
   artStyle: string;
+  storySummary: string; // Add storySummary
+  existingAssetNames: string[]; // Add existing names
   onAssetCreated: (asset: IAsset) => void;
 }
 
-export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
+export function AssetCreator({ artStyle, storySummary, existingAssetNames, onAssetCreated }: AssetCreatorProps) {
   const [assetType, setAssetType] = useState<"character" | "environment">("character");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isInspiring, setIsInspiring] = useState(false);
+
+  const handleInspire = async () => {
+    if (!storySummary) {
+      toast.error("Please define a story summary first for better suggestions.");
+      return;
+    }
+    setIsInspiring(true);
+    toast.info(`Getting an idea for a new ${assetType}...`);
+    try {
+      const response = await fetch('/api/inspire/asset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assetType, storySummary, existingAssetNames }),
+      });
+      if (!response.ok) throw new Error("Failed to get suggestion.");
+      const { name: newName, prompt: newPrompt } = await response.json();
+      setName(newName);
+      setPrompt(newPrompt);
+      toast.success("New idea generated!");
+    } catch (error) {
+      toast.error("Could not generate an idea.");
+    } finally {
+      setIsInspiring(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!name.trim() || !prompt.trim()) {
@@ -83,7 +112,10 @@ export function AssetCreator({ artStyle, onAssetCreated }: AssetCreatorProps) {
       </Tabs>
 
       <div className="space-y-2">
-        <Label htmlFor="asset-name">Name</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="asset-name">Name</Label>
+          <InspireButton onClick={handleInspire} isLoading={isInspiring} />
+        </div>
         <Input 
           id="asset-name" 
           placeholder={assetType === 'character' ? "e.g., Kenji" : "e.g., Neo-Kyoto Market"}

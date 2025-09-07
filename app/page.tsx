@@ -102,7 +102,13 @@ export default function Home() {
                     <CardDescription>Generate the characters and environments for your story.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <AssetCreator artStyle={artStyle} onAssetCreated={handleAssetCreated}/>
+                    <AssetCreator 
+                      artStyle={artStyle} 
+                      onAssetCreated={handleAssetCreated}
+                      // Pass additional props
+                      storySummary={storySummary}
+                      existingAssetNames={[...characters, ...environments].map(a => a.name)}
+                    />
                     <hr className="border-dashed"/>
                     <AssetList title="Characters" assets={characters}/>
                     <AssetList title="Environments" assets={environments}/>
@@ -117,7 +123,15 @@ export default function Home() {
                     <CardDescription>Write a prompt for a page, select assets to reference, and generate.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <PageGenerator storySummary={storySummary} artStyle={artStyle} characters={characters} environments={environments} currentPageNumber={pages.length + 1} onPageCreated={handlePageCreated}/>
+                    <PageGenerator
+                      storySummary={storySummary}
+                      artStyle={artStyle}
+                      characters={characters}
+                      environments={environments}
+                      currentPageNumber={pages.length + 1}
+                      onPageCreated={handlePageCreated}
+                      pages={pages} // Pass pages for context
+                    />
                 </CardContent>
             </Card>
             <MangaViewer pages={pages}/>
