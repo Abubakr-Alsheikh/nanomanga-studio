@@ -26,8 +26,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { RotateCw } from "lucide-react";
+import { Github, RotateCw } from "lucide-react";
 import { toast } from "sonner";
+import { HowToUseGuide } from "@/components/how-to-use-guide";
 
 export default function Home() {
   const [genre, setGenre] = useState("Sci-Fi");
@@ -89,11 +90,27 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight">NanoManga Studio</h1>
-        <p className="text-muted-foreground mt-2">
-          Your AI co-creator for crafting unique manga stories.
-        </p>
+      <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="text-center sm:text-left">
+          <h1 className="text-4xl font-bold tracking-tight">
+            NanoManga Studio
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Bring your manga stories to life with the power of AI.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <HowToUseGuide />
+          <a
+            href="https://github.com/Abubakr-Alsheikh/nanomanga-studio"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" size="icon" title="View on GitHub">
+              <Github className="h-4 w-4" />
+            </Button>
+          </a>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
