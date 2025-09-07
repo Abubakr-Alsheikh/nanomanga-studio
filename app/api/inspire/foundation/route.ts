@@ -1,8 +1,8 @@
-import { genAI } from "@/lib/gemini";
+import { genAI, GEMINI_TEXT_MODEL_NAME } from "@/lib/gemini"; // Import the new constant
 import { extractJson } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
-const MODEL_NAME = "gemini-2.5-flash-lite";
+const MODEL_NAME = GEMINI_TEXT_MODEL_NAME;
 
 export async function POST() {
   try {

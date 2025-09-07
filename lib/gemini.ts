@@ -10,8 +10,10 @@ if (!apiKey) {
 // Initialize the GoogleGenerativeAI instance
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Define the model name as a constant for easy reuse
-export const NANO_BANANA_MODEL_NAME = "gemini-2.5-flash-image-preview";
+export const GEMINI_IMAGE_MODEL_NAME =
+  process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image-preview";
+export const GEMINI_TEXT_MODEL_NAME =
+  process.env.GEMINI_TEXT_MODEL || "gemini-2.5-flash";
 
 // Export the initialized client
 export { genAI };

@@ -1,4 +1,4 @@
-import { genAI, NANO_BANANA_MODEL_NAME } from "@/lib/gemini";
+import { GEMINI_IMAGE_MODEL_NAME, genAI, NANO_BANANA_MODEL_NAME } from "@/lib/gemini";
 import { Part } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     }
 
     // --- 2. Initialize the Model ---
-    const model = genAI.getGenerativeModel({ model: NANO_BANANA_MODEL_NAME });
+    const model = genAI.getGenerativeModel({ model: GEMINI_IMAGE_MODEL_NAME });
 
     // --- 3. Construct the Multi-Modal Prompt ---
     // The final prompt sent to the API will be an array of "parts"
@@ -76,6 +76,10 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "Failed to generate image.", details: errorMessage },
       { status: 500 }
+    );
+  }
+}
+status: 500 }
     );
   }
 }

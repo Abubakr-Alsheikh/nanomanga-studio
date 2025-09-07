@@ -1,23 +1,36 @@
-import { genAI } from "@/lib/gemini";
+import { genAI, GEMINI_TEXT_MODEL_NAME } from "@/lib/gemini"; // Import the new constant
 import { extractJson } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
-const MODEL_NAME = "gemini-2.5-flash-lite";
+const MODEL_NAME = GEMINI_TEXT_MODEL_NAME;
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     // For debugging, let's see exactly what the server receives
-    console.log("Received body in /api/inspire/page:", JSON.stringify(body, null, 2));
+    console.log(
+      "Received body in /api/inspire/page:",
+      JSON.stringify(body, null, 2)
+    );
 
     const { storyPlan, previousPagePrompts } = body;
 
     // --- BULLETPROOF GUARD CLAUSE ---
     // This checks everything: if storyPlan exists, is an object, and has a non-empty pages array.
-    if (!storyPlan || typeof storyPlan !== 'object' || !Array.isArray(storyPlan.pages) || storyPlan.pages.length === 0) {
-      console.error("Validation failed: storyPlan is missing or invalid in the request body.");
+    if (
+      !storyPlan ||
+      typeof storyPlan !== "object" ||
+      !Array.isArray(storyPlan.pages) ||
+      storyPlan.pages.length === 0
+    ) {
+      console.error(
+        "Validation failed: storyPlan is missing or invalid in the request body."
+      );
       return NextResponse.json(
-        { error: "A valid story plan with a 'pages' array is required to generate a page prompt." },
+        {
+          error:
+            "A valid story plan with a 'pages' array is required to generate a page prompt.",
+        },
         { status: 400 }
       );
     }

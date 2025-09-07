@@ -76,10 +76,14 @@ To run this project locally, follow these steps:
     ```
 
 3. **Set up your environment variables:**
-    Create a new file named `.env.local` in the root of the project and add your Google AI Studio API key:
+    Create a new file named `.env.local` or copy from `.env.example` in the root of the project and add your Google AI Studio API key:
 
     ```
     GEMINI_API_KEY="YOUR_API_KEY_HERE"
+
+    # Model Names (these are the recommended defaults)
+    GEMINI_IMAGE_MODEL="gemini-2.5-flash-image-preview"
+    GEMINI_TEXT_MODEL="gemini-2.5-flash"
     ```
 
     You can get an API key from [Google AI Studio](https://aistudio.google.com/).
